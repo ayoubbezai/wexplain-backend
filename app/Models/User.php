@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,6 +19,9 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+
+        protected $keyType = 'string';
+    public $incrementing = false;
     protected $fillable = [
         'first_name',
         'last_name',
@@ -47,6 +51,16 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+        protected static function booted()
+    {
+        static::creating(function ($user) {
+            if (empty($user->{$user->getKeyName()})) {
+                $user->{$user->getKeyName()} = (string) Str::uuid();
+            }
+        });
+    }
+
 
     // link the user with the role table
     public function role (){

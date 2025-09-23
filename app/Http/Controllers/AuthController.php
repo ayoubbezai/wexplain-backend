@@ -2,33 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+
+use App\Services\Auth\StudentService;
+use App\DTOs\Auth\SignUpStudentDTO;
+
+use App\Http\Requests\Auth\SignUpStudentRequest;
 
 class AuthController extends Controller
 {
-    public function signup(Request $request)
+    public function signupStudent(SignUpStudentRequest $request, StudentService $service)
     {
-        $request->validate([
-            'name' => 'required|string|max:150',
-            'email' => 'required|string|email|max:150|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
+        $dto = SignUpStudentDTO::fromRequest($request);
+        $cookie  =   $service->register($dto);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
 
-        $token = $user->createToken('api_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'User created successfully.',
-            'user' => $user,
-            'token' => $token,
-        ], 201);
+    return response()->json([
+        'success' => true,
+        'message' => 'Student registered successfully'
+    ],201)->withCookie($cookie);
     }
 }

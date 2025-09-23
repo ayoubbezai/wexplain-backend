@@ -21,7 +21,7 @@ return new class extends Migration
             // Student details (kept as text for encryption)
             $table->text("phone_number");
             $table->text("second_number")->nullable();
-            $table->text("parent_number");
+            $table->text("parent_number")->nullable();
             $table->date("date_of_birth");
             $table->text("address")->nullable();
             $table->text("year_of_study");
