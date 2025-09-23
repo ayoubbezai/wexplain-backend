@@ -13,7 +13,7 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        //run the default roles 
+        //run the default roles
         $roles = ["super_admin","teacher","student"];
 
         foreach($roles as $role){
@@ -21,8 +21,6 @@ class RoleSeeder extends Seeder
                 'name' => $role,
             ]);
         }
-
-
 
     }
 }
