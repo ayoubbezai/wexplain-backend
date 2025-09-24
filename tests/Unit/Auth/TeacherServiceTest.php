@@ -6,7 +6,7 @@ use Tests\TestCase;
 use App\Models\Role;
 use Illuminate\Http\UploadedFile;
 use App\DTOs\Auth\SignUpTeacherDTO;
-use App\Services\Auth\TeacherService;
+use App\Services\TeacherService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
