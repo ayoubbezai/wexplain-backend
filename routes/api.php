@@ -17,3 +17,6 @@ Route::post('/v1/login', [AuthController::class, 'login']);
 // roles : super_admin
 // vercion : 1
 Route::get('/v1/teachers', [TeacherController::class, 'index']);
+
+// same but for one teacher
+Route::get('/v1/teachers/{id}', [TeacherController::class, 'show']);

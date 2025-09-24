@@ -75,53 +75,66 @@ class TeacherService
             );
         });
     }
-public function getAll(TeacherIndexDTO $dto)
-{
-            $query = Teacher::query()
-            ->select([
-                'teachers.id',
-                'teachers.user_id',
-                'teachers.gender',
-                'teachers.phone_number',
-                'teachers.second_phone_number',
-                'teachers.primary_subject',
-                'teachers.teaching_level',
-                'teachers.years_of_experience',
-                'teachers.created_at'
-            ])
-            ->join('users', 'teachers.user_id', '=', 'users.id')
-            ->addSelect([
-                'users.first_name',
-                'users.last_name',
-                'users.email',
-            ]);
-    // Search by name, phone_number, second_number
-if ($dto->search) {
-    $query->where(function ($q) use ($dto) {
-        $searchTerm = "%{$dto->search}%";
+        public function getAll(TeacherIndexDTO $dto)
+        {
+                    $query = Teacher::query()
+                    ->select([
+                        'teachers.id',
+                        'teachers.user_id',
+                        'teachers.gender',
+                        'teachers.phone_number',
+                        'teachers.second_phone_number',
+                        'teachers.primary_subject',
+                        'teachers.teaching_level',
+                        'teachers.years_of_experience',
+                        'teachers.created_at'
+                    ])
+                    ->join('users', 'teachers.user_id', '=', 'users.id')
+                    ->addSelect([
+                        'users.first_name',
+                        'users.last_name',
+                        'users.email',
+                    ]);
+            // Search by name, phone_number, second_number
+        if ($dto->search) {
+            $query->where(function ($q) use ($dto) {
+                $searchTerm = "%{$dto->search}%";
 
-        $q->whereAny([
-                "users.first_name",
-                "users.last_name",
-                "teachers.phone_number",
-                "teachers.second_phone_number"
-            ], 'LIKE', $searchTerm)
-          ->orWhereRaw("users.first_name || ' ' || users.last_name LIKE ?", [$searchTerm])
-          ->orWhereRaw("users.last_name || ' ' || users.first_name LIKE ?", [$searchTerm]);
-    });
-}
+                $q->whereAny([
+                        "users.first_name",
+                        "users.last_name",
+                        "teachers.phone_number",
+                        "teachers.second_phone_number"
+                    ], 'LIKE', $searchTerm)
+                ->orWhereRaw("users.first_name || ' ' || users.last_name LIKE ?", [$searchTerm])
+                ->orWhereRaw("users.last_name || ' ' || users.first_name LIKE ?", [$searchTerm]);
+            });
+        }
 
-    // Filter by gender if provided and valid
-    if ($dto->gender && in_array($dto->gender, ['male', 'female'])) {
-        $query->where('teachers.gender', $dto->gender);
-    }
+            // Filter by gender if provided and valid
+            if ($dto->gender && in_array($dto->gender, ['male', 'female'])) {
+                $query->where('teachers.gender', $dto->gender);
+            }
 
-    // Apply sorting (make sure sortBy is fully qualified if sorting by user columns)
-    $sortColumn = in_array($dto->sortBy, ['first_name', 'last_name']) ? "users.{$dto->sortBy}" : "teachers.{$dto->sortBy}";
-    $query->orderBy($sortColumn, $dto->sortDir);
+            // Apply sorting (make sure sortBy is fully qualified if sorting by user columns)
+            $sortColumn = in_array($dto->sortBy, ['first_name', 'last_name']) ? "users.{$dto->sortBy}" : "teachers.{$dto->sortBy}";
+            $query->orderBy($sortColumn, $dto->sortDir);
 
-    // Return paginated results
-    return $query->paginate($dto->perPage, ['*'], 'page', $dto->page);
-}
+            // Return paginated results
+            return $query->paginate($dto->perPage, ['*'], 'page', $dto->page);
+        }
+        public function getOne(int $teacherId)
+        {
+            return Teacher::query()
+                ->select([
+                    'teachers.*',
+                    'users.first_name',
+                    'users.last_name',
+                    'users.email'
+                ])
+                ->join('users', 'teachers.user_id', '=', 'users.id')
+                ->where('teachers.id', $teacherId)
+                ->first(); // returns null if not found
+        }
 
 }

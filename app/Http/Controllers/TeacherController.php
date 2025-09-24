@@ -52,9 +52,34 @@ class TeacherController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+   /**
+ * Display the specified teacher.
+ */
+    public function show(TeacherService $service, string $id)
     {
-        //
+        try {
+            $teacher = $service->getOne((int) $id);
+
+            if (!$teacher) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'not_found',
+                    'data'    => null,
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'successfully',
+                'data'    => $teacher,
+            ], 200);
+
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'failed',
+            ], 500);
+        }
     }
 
     /**
