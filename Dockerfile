@@ -6,7 +6,6 @@ RUN apt-get update && apt-get install -y \
     git \
     curl \
     libzip-dev \
-    default-mysql-client \
     && docker-php-ext-install pdo_mysql zip
 
 # Install Composer globally
@@ -18,7 +17,10 @@ WORKDIR /var/www
 # Copy project files
 COPY . .
 
-# Copy entrypoint script and make executable
+# Install PHP dependencies
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+
+# Copy entrypoint and make executable
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
