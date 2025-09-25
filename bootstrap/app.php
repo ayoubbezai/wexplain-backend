@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\HandleCors;
 use App\Http\Middleware\Authenticate;
 use Illuminate\Foundation\Application;
 use App\Http\Middleware\SanctumCookieToken;
@@ -15,13 +16,15 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         //
-
-                $middleware->alias([
-
-            'auth_cookie' => \App\Http\Middleware\SanctumCookieToken::class
+    // Assign aliases
+        $middleware->alias([
+            'auth' => \App\Http\Middleware\Authenticate::class,
 
         ]);
 
+        // Assign global middleware
+        $middleware->prepend(HandleCors::class);
+        $middleware->prepend(SanctumCookieToken::class);
 
     })
     ->withExceptions(function (Exceptions $exceptions): void {

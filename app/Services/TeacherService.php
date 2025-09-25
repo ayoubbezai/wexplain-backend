@@ -5,16 +5,17 @@ namespace App\Services;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Teacher;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\DTOs\Auth\SignUpTeacherDTO;
 use Illuminate\Support\Facades\Hash;
 use App\DTOs\Teacher\TeacherIndexDTO;
 use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\Storage;
+
 
 class TeacherService
 {
-    public function register(SignUpTeacherDTO $dto)
+      public function register(SignUpTeacherDTO $dto)
     {
         return DB::transaction(function () use ($dto) {
             // Get teacher role
@@ -75,66 +76,90 @@ class TeacherService
             );
         });
     }
-        public function getAll(TeacherIndexDTO $dto)
-        {
-                    $query = Teacher::query()
-                    ->select([
-                        'teachers.id',
-                        'teachers.user_id',
-                        'teachers.gender',
-                        'teachers.phone_number',
-                        'teachers.second_phone_number',
-                        'teachers.primary_subject',
-                        'teachers.teaching_level',
-                        'teachers.years_of_experience',
-                        'teachers.created_at'
-                    ])
-                    ->join('users', 'teachers.user_id', '=', 'users.id')
-                    ->addSelect([
-                        'users.first_name',
-                        'users.last_name',
-                        'users.email',
-                    ]);
-            // Search by name, phone_number, second_number
+    public function getAll(TeacherIndexDTO $dto)
+    {
+        $query = Teacher::query()
+            ->select([
+                'teachers.id',
+                'teachers.user_id',
+                'teachers.gender',
+                'teachers.phone_number',
+                'teachers.second_phone_number',
+                'teachers.primary_subject',
+                'teachers.teaching_level',
+                'teachers.years_of_experience',
+                'teachers.created_at'
+            ])
+            ->join('users', 'teachers.user_id', '=', 'users.id')
+            ->addSelect([
+                'users.first_name',
+                'users.last_name',
+                'users.email',
+            ]);
+
         if ($dto->search) {
             $query->where(function ($q) use ($dto) {
                 $searchTerm = "%{$dto->search}%";
 
                 $q->whereAny([
-                        "users.first_name",
-                        "users.last_name",
-                        "teachers.phone_number",
-                        "teachers.second_phone_number"
-                    ], 'LIKE', $searchTerm)
+                    "users.first_name",
+                    "users.last_name",
+                    "teachers.phone_number",
+                    "teachers.second_phone_number"
+                ], 'LIKE', $searchTerm)
                 ->orWhereRaw("users.first_name || ' ' || users.last_name LIKE ?", [$searchTerm])
                 ->orWhereRaw("users.last_name || ' ' || users.first_name LIKE ?", [$searchTerm]);
             });
         }
 
-            // Filter by gender if provided and valid
-            if ($dto->gender && in_array($dto->gender, ['male', 'female'])) {
-                $query->where('teachers.gender', $dto->gender);
-            }
-
-            // Apply sorting (make sure sortBy is fully qualified if sorting by user columns)
-            $sortColumn = in_array($dto->sortBy, ['first_name', 'last_name']) ? "users.{$dto->sortBy}" : "teachers.{$dto->sortBy}";
-            $query->orderBy($sortColumn, $dto->sortDir);
-
-            // Return paginated results
-            return $query->paginate($dto->perPage, ['*'], 'page', $dto->page);
+        if ($dto->gender && in_array($dto->gender, ['male', 'female'])) {
+            $query->where('teachers.gender', $dto->gender);
         }
-        public function getOne(int $teacherId)
-        {
-            return Teacher::query()
-                ->select([
-                    'teachers.*',
-                    'users.first_name',
-                    'users.last_name',
-                    'users.email'
-                ])
-                ->join('users', 'teachers.user_id', '=', 'users.id')
-                ->where('teachers.id', $teacherId)
-                ->first(); // returns null if not found
+
+        $sortColumn = in_array($dto->sortBy, ['first_name', 'last_name'])
+            ? "users.{$dto->sortBy}"
+            : "teachers.{$dto->sortBy}";
+
+        $query->orderBy($sortColumn, $dto->sortDir);
+
+        return $query->paginate($dto->perPage, ['*'], 'page', $dto->page);
+    }
+
+    public function getOne(int $teacherId): ?array
+    {
+        $teacher = Teacher::query()
+            ->select([
+                'teachers.*',
+                'users.first_name',
+                'users.last_name',
+                'users.email'
+            ])
+            ->join('users', 'teachers.user_id', '=', 'users.id')
+            ->where('teachers.id', $teacherId)
+            ->first();
+
+        if (!$teacher) {
+            return null;
         }
+
+        return [
+            'id' => $teacher->id,
+            'user_id' => $teacher->user_id,
+            'first_name' => $teacher->first_name,
+            'last_name' => $teacher->last_name,
+            'email' => $teacher->email,
+            'gender' => $teacher->gender,
+            'phone_number' => $teacher->phone_number,
+            'primary_subject' => $teacher->primary_subject,
+            'teaching_level' => $teacher->teaching_level,
+            'years_of_experience' => $teacher->years_of_experience,
+            'files' => [
+                'cv'      => route('teachers.file', ['teacherId' => $teacher->id, 'fileType' => 'cv']),
+                'id_card' => route('teachers.file', ['teacherId' => $teacher->id, 'fileType' => 'id_card']),
+                'image'   => route('teachers.file', ['teacherId' => $teacher->id, 'fileType' => 'image']),
+            ],
+        ];
+    }
+
 
 }

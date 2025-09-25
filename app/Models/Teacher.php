@@ -37,8 +37,7 @@ class Teacher extends Model
         'card_expiry'   => 'date',
 
         // Encrypt sensitive fields
-        'teacher_image_url'   => 'encrypted',
-        'id_card_image_url'   => 'encrypted',
+
         'address'             => 'encrypted',
         'ccp_number'          => 'encrypted',
         'ccp_key'             => 'encrypted',
@@ -46,7 +45,6 @@ class Teacher extends Model
         'card_number'         => 'encrypted',
         'card_cvv'            => 'encrypted',
         'card_holder_name'    => 'encrypted',
-        'cv_url'              => 'encrypted',
 
         // Financial
         'credit' => 'decimal:2',

@@ -4,6 +4,12 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TeacherController;
 
 
+use App\Http\Controllers\TestController;
+
+Route::post('/upload', [TestController::class, 'upload']);
+Route::get('/image/{filename}', [TestController::class, 'stream']);
+
+
 // public endpoint
 // for all roles
 // inputs :
@@ -22,3 +28,6 @@ Route::get('/v1/teachers', [TeacherController::class, 'index']);
 
 // same but for one teacher
 Route::get('/v1/teachers/{id}', [TeacherController::class, 'show']);
+
+Route::get('/teachers/{teacherId}/file/{fileType}', [TeacherController::class, 'file'])->name("teachers.file");
+

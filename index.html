@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Teacher Files Viewer</title>
+    </head>
+    <body>
+        <h4>Teacher Files</h4>
+
+        <h2>Teacher Image</h2>
+        <img
+            src="http://localhost:8000/api/teachers/4/file/image"
+            alt="Teacher Image"
+            width="300"
+        />
+
+        <h2>ID Card</h2>
+        <img
+            src="http://localhost:8000/api/teachers/4/file/id_card"
+            alt="ID Card"
+            width="300"
+        />
+
+        <h2>CV (PDF)</h2>
+        <object
+            data="http://localhost:8000/api/teachers/4/file/cv"
+            type="application/pdf"
+            width="600"
+            height="800"
+        >
+            <p>
+                Your browser does not support PDFs.
+                <a href="http://localhost:8000/api/teachers/4/file/cv"
+                    >Download the PDF</a
+                >.
+            </p>
+        </object>
+    </body>
+</html>
