@@ -25,6 +25,8 @@ return new class extends Migration
             $table->date("date_of_birth");
             $table->text("address")->nullable();
             $table->text("year_of_study");
+             $table->string('gender', 20);
+
 
             $table->timestamps();
         });

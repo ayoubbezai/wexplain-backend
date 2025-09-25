@@ -1,13 +1,11 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 
 
-use App\Http\Controllers\TestController;
 
-Route::post('/upload', [TestController::class, 'upload']);
-Route::get('/image/{filename}', [TestController::class, 'stream']);
 
 
 // public endpoint
@@ -26,8 +24,16 @@ Route::middleware('auth_cookie')->get('/v1/user', [AuthController::class, 'me'])
 // vercion : 1
 Route::get('/v1/teachers', [TeacherController::class, 'index']);
 
+
 // same but for one teacher
 Route::get('/v1/teachers/{id}', [TeacherController::class, 'show']);
 
 Route::get('/teachers/{teacherId}/file/{fileType}', [TeacherController::class, 'file'])->name("teachers.file");
 
+
+
+// get all students
+// auth : required
+// roles : super_admin
+// vercion : 1
+Route::get('/v1/students', [StudentController::class, 'index']);

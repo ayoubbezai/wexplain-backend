@@ -9,6 +9,7 @@ class SignUpStudentDTO
         public readonly string $last_name,
         public readonly string $email,
         public readonly string $password,
+        public readonly string $gender,
         public readonly string $phone_number,
         public readonly ?string $second_number,
         public readonly ?string $parent_number,
@@ -22,6 +23,7 @@ class SignUpStudentDTO
         return new self(
             first_name: strip_tags($request->input('first_name')),
             last_name: strip_tags($request->input('last_name')),
+            gender: $request->input('gender'),
             email: strtolower($request->input('email')),
             password: $request->input('password'),
             phone_number: $request->input('phone_number'),

@@ -10,7 +10,7 @@ use Illuminate\Routing\Controller;
 use App\DTOs\Auth\SignUpStudentDTO;
 use App\DTOs\Auth\SignUpTeacherDTO;
 use App\Services\Auth\LoginService;
-use App\Services\Auth\StudentService;
+use App\Services\StudentService;
 use App\Services\TeacherService;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\SignUpStudentRequest;

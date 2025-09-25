@@ -21,6 +21,8 @@ class SignUpStudentRequest extends FormRequest
             'last_name'  => 'required|string|max:255',
             'email'      => 'required|email|unique:users,email',
             'password'   => 'required|string|min:8|max:255|confirmed',
+            'gender'        => 'required|string|max:20',
+
 
             // Student fields
             'phone_number'  => 'required|string|max:255',
@@ -53,6 +55,10 @@ class SignUpStudentRequest extends FormRequest
             'password.min'        => 'password_min',
             'password.max'        => 'password_max',
             'password.confirmed'  => 'password_confirmed',
+
+            'gender.required'        => 'gender_required',
+            'gender.string'          => 'gender_string',
+            'gender.max'             => 'gender_max',
 
             // Student
             'phone_number.required'  => 'phone_number_required',
