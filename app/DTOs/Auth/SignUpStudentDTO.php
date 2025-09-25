@@ -18,7 +18,7 @@ class SignUpStudentDTO
         public readonly string $date_of_birth,
         public readonly ?string $address,
         public readonly string $year_of_study,
-        public readonly UploadedFile $student_image,
+        public readonly ?UploadedFile $student_image,
 
     ) {}
 
@@ -36,7 +36,7 @@ class SignUpStudentDTO
             date_of_birth: $request->input('date_of_birth'),
             address: $request->filled('address') ? $request->input('address') : null,
             year_of_study: $request->input('year_of_study'),
-            student_image: $request->file('student_image'),
+            student_image: $request->file('student_image') ?: null,
 
         );
     }
