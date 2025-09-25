@@ -1,0 +1,68 @@
+services:
+    app:
+    build:
+        context: .
+        dockerfile: Dockerfile
+    container_name: laravel_app
+    working_dir: /var/www
+    volumes:
+        - ./:/var/www
+    networks:
+        - laravel
+    environment:
+        DB_CONNECTION: mysql
+        DB_HOST: laravel_db
+        DB_PORT: 3306
+        DB_DATABASE: laravel
+        DB_USERNAME: user
+        DB_PASSWORD: password
+
+    web:
+        image: nginx:alpine
+        container_name: laravel_web
+        ports:
+            - "8000:80"
+        volumes:
+            - ./:/var/www
+            - ./nginx/conf.d:/etc/nginx/conf.d
+        depends_on:
+            - app
+        networks:
+            - laravel
+
+    db:
+        image: mysql:8.0.33
+        container_name: laravel_db
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: laravel
+            MYSQL_USER: user
+            MYSQL_PASSWORD: password
+        ports:
+            - "3307:3306"
+        volumes:
+            - db_data:/var/lib/mysql
+        networks:
+            - laravel
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: laravel_phpmyadmin
+        restart: always
+        ports:
+            - "8080:80"
+        environment:
+            PMA_HOST: laravel_db # Must match MySQL container name
+            PMA_USER: user
+            PMA_PASSWORD: password
+        depends_on:
+            - db
+        networks:
+            - laravel
+
+volumes:
+    db_data:
+
+networks:
+    laravel:
+        driver: bridge
