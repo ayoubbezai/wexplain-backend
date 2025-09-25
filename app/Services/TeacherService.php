@@ -76,54 +76,67 @@ class TeacherService
             );
         });
     }
-    public function getAll(TeacherIndexDTO $dto)
-    {
-        $query = Teacher::query()
-            ->select([
-                'teachers.id',
-                'teachers.user_id',
-                'teachers.gender',
-                'teachers.phone_number',
-                'teachers.second_phone_number',
-                'teachers.primary_subject',
-                'teachers.teaching_level',
-                'teachers.years_of_experience',
-                'teachers.created_at'
-            ])
-            ->join('users', 'teachers.user_id', '=', 'users.id')
-            ->addSelect([
-                'users.first_name',
-                'users.last_name',
-                'users.email',
-            ]);
+        public function getAll(TeacherIndexDTO $dto)
+        {
+            $query = Teacher::query()
+                ->select([
+                    'teachers.id',
+                    'teachers.user_id',
+                    'teachers.gender',
+                    'teachers.phone_number',
+                    'teachers.second_phone_number',
+                    'teachers.primary_subject',
+                    'teachers.teaching_level',
+                    'teachers.years_of_experience',
+                    'teachers.teacher_image_url',
+                    'teachers.created_at'
+                ])
+                ->join('users', 'teachers.user_id', '=', 'users.id')
+                ->addSelect([
+                    'users.first_name',
+                    'users.last_name',
+                    'users.email',
+                ]);
 
-        if ($dto->search) {
-            $query->where(function ($q) use ($dto) {
-                $searchTerm = "%{$dto->search}%";
+            if ($dto->search) {
+                $query->where(function ($q) use ($dto) {
+                    $searchTerm = "%{$dto->search}%";
 
-                $q->whereAny([
-                    "users.first_name",
-                    "users.last_name",
-                    "teachers.phone_number",
-                    "teachers.second_phone_number"
-                ], 'LIKE', $searchTerm)
-                ->orWhereRaw("users.first_name || ' ' || users.last_name LIKE ?", [$searchTerm])
-                ->orWhereRaw("users.last_name || ' ' || users.first_name LIKE ?", [$searchTerm]);
+                    $q->whereAny([
+                        "users.first_name",
+                        "users.last_name",
+                        "teachers.phone_number",
+                        "teachers.second_phone_number"
+                    ], 'LIKE', $searchTerm)
+                    ->orWhereRaw("users.first_name || ' ' || users.last_name LIKE ?", [$searchTerm])
+                    ->orWhereRaw("users.last_name || ' ' || users.first_name LIKE ?", [$searchTerm]);
+                });
+            }
+
+            if ($dto->gender && in_array($dto->gender, ['male', 'female'])) {
+                $query->where('teachers.gender', $dto->gender);
+            }
+
+            $sortColumn = in_array($dto->sortBy, ['first_name', 'last_name'])
+                ? "users.{$dto->sortBy}"
+                : "teachers.{$dto->sortBy}";
+
+            $paginated = $query->orderBy($sortColumn, $dto->sortDir)
+                            ->paginate($dto->perPage, ['*'], 'page', $dto->page);
+
+            // Transform each teacher to include image URL
+            $paginated->getCollection()->transform(function ($teacher) {
+                $teacher->files = [
+                    'image' => route('teachers.file', [
+                        'teacherId' => $teacher->id,
+                        'fileType'  => 'image',
+                    ])
+                ];
+                return $teacher;
             });
+
+            return $paginated;
         }
-
-        if ($dto->gender && in_array($dto->gender, ['male', 'female'])) {
-            $query->where('teachers.gender', $dto->gender);
-        }
-
-        $sortColumn = in_array($dto->sortBy, ['first_name', 'last_name'])
-            ? "users.{$dto->sortBy}"
-            : "teachers.{$dto->sortBy}";
-
-        $query->orderBy($sortColumn, $dto->sortDir);
-
-        return $query->paginate($dto->perPage, ['*'], 'page', $dto->page);
-    }
 
     public function getOne(int $teacherId): ?array
     {

@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use Throwable;
+use App\Models\Student;
+use App\Models\Teacher;
 use Illuminate\Http\Request;
-use App\DTOs\Student\StudentIndexDTO;
 use App\Services\StudentService;
+use App\DTOs\Student\StudentIndexDTO;
 use App\Http\Resources\StudentResource;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Student\StudentIndexRequest;
 
 class StudentController extends Controller
@@ -67,4 +70,22 @@ class StudentController extends Controller
     {
         //
     }
+
+
+public function file(int $studentId)
+{
+    // Find student
+    $student = Student::findOrFail($studentId);
+
+    // Get file path from database
+    $filePath = $student->student_image_url;
+
+    // Validate path
+    if (!$filePath || !Storage::disk('local')->exists($filePath)) {
+        abort(404, 'File not found in storage.');
+    }
+
+    // Return the file as a response
+    return response()->file(Storage::disk('local')->path($filePath));
+}
 }

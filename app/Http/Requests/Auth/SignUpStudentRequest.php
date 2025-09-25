@@ -27,10 +27,13 @@ class SignUpStudentRequest extends FormRequest
             // Student fields
             'phone_number'  => 'required|string|max:255',
             'second_number' => 'nullable|string|max:255',
-            'parent_number' => 'required|string|max:255',
+            'parent_number' => 'nullable|string|max:255',
             'date_of_birth' => 'required|date',
             'address'       => 'nullable|string|max:255',
             'year_of_study' => 'required|string|max:255',
+
+            'student_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+
         ];
     }
 
@@ -68,7 +71,6 @@ class SignUpStudentRequest extends FormRequest
             'second_number.string'   => 'second_number_string',
             'second_number.max'      => 'second_number_max',
 
-            'parent_number.required' => 'parent_number_required',
             'parent_number.string'   => 'parent_number_string',
             'parent_number.max'      => 'parent_number_max',
 
@@ -81,6 +83,13 @@ class SignUpStudentRequest extends FormRequest
             'year_of_study.required' => 'year_of_study_required',
             'year_of_study.string'   => 'year_of_study_string',
             'year_of_study.max'      => 'year_of_study_max',
+
+
+            'student_image.required' => 'student_image_required',
+            'student_image.image'    => 'student_image_must_be_image',
+            'student_image.mimes'    => 'student_image_invalid_type',
+            'student_image.max'      => 'student_image_max_size',
+
         ];
     }
 

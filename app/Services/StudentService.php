@@ -29,6 +29,7 @@ class StudentService
                 'password' => $dto->password,
             ]);
 
+            $studentImagePath = $dto->student_image->store('students/images', 'local');
             // Create student
             Student::create([
                 'user_id'       => $user->id,
@@ -39,7 +40,11 @@ class StudentService
                 'date_of_birth' => $dto->date_of_birth,
                 'address'       => $dto->address,
                 'year_of_study' => $dto->year_of_study,
+                'student_image_url' => $studentImagePath,
+
             ]);
+
+
 
             // Generate token (using Sanctum)
             $token = $user->createToken('auth_token')->plainTextToken;
@@ -57,53 +62,69 @@ class StudentService
         });
     }
 
-        public function getAll(StudentIndexDTO $dto)
-    {
-        $query = Student::query()
-            ->select([
-                'students.id',
-                'students.user_id',
-                'students.gender',
-                'students.phone_number',
-                'students.second_number',
-                'students.date_of_birth',
-                'students.address',
-                'students.year_of_study',
-                'students.created_at'
-            ])
-            ->join('users', 'students.user_id', '=', 'users.id')
-            ->addSelect([
-                'users.first_name',
-                'users.last_name',
-                'users.email',
-            ]);
+ public function getAll(StudentIndexDTO $dto)
+{
+    $query = Student::query()
+        ->select([
+            'students.id',
+            'students.user_id',
+            'students.gender',
+            'students.phone_number',
+            'students.second_number',
+            'students.parent_number',
+            'students.student_image_url',
+            'students.date_of_birth',
+            'students.address',
+            'students.year_of_study',
+            'students.created_at'
+        ])
+        ->join('users', 'students.user_id', '=', 'users.id')
+        ->addSelect([
+            'users.first_name',
+            'users.last_name',
+            'users.email',
+        ]);
 
-        if ($dto->search) {
-            $query->where(function ($q) use ($dto) {
-                $searchTerm = "%{$dto->search}%";
+    if ($dto->search) {
+        $query->where(function ($q) use ($dto) {
+            $searchTerm = "%{$dto->search}%";
 
-                $q->whereAny([
-                    "users.first_name",
-                    "users.last_name",
-                    "students.phone_number",
-                    "students.second_number"
-                ], 'LIKE', $searchTerm)
-                ->orWhereRaw("users.first_name || ' ' || users.last_name LIKE ?", [$searchTerm])
-                ->orWhereRaw("users.last_name || ' ' || users.first_name LIKE ?", [$searchTerm]);
-            });
-        }
-
-        if ($dto->gender && in_array($dto->gender, ['male', 'female'])) {
-            $query->where('students.gender', $dto->gender);
-        }
-
-        $sortColumn = in_array($dto->sortBy, ['first_name', 'last_name'])
-            ? "users.{$dto->sortBy}"
-            : "students.{$dto->sortBy}";
-
-        $query->orderBy($sortColumn, $dto->sortDir);
-
-        return $query->paginate($dto->perPage, ['*'], 'page', $dto->page);
+            $q->whereAny([
+                "users.first_name",
+                "users.last_name",
+                "students.phone_number",
+                "students.second_number"
+            ], 'LIKE', $searchTerm)
+            ->orWhereRaw("users.first_name || ' ' || users.last_name LIKE ?", [$searchTerm])
+            ->orWhereRaw("users.last_name || ' ' || users.first_name LIKE ?", [$searchTerm]);
+        });
     }
+
+    if ($dto->gender && in_array($dto->gender, ['male', 'female'])) {
+        $query->where('students.gender', $dto->gender);
+    }
+
+    $sortColumn = in_array($dto->sortBy, ['first_name', 'last_name'])
+        ? "users.{$dto->sortBy}"
+        : "students.{$dto->sortBy}";
+
+    $paginated = $query->orderBy($sortColumn, $dto->sortDir)
+                       ->paginate($dto->perPage, ['*'], 'page', $dto->page);
+
+    // Transform each student to include the image URL
+    $paginated->getCollection()->transform(function ($student) {
+        $student->files = [
+            'image' => $student->student_image_url
+                ? route('students.file', [
+                    'studentId' => $student->id,
+                ])
+                : null,
+        ];
+        return $student;
+    });
+
+    return $paginated;
+}
+
 
 }

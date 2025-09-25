@@ -14,10 +14,13 @@ class StudentResource extends JsonResource
             'email'               => $this->user->email,
             'phone_number'        => $this->phone_number,
             'second_number'       => $this->second__number,
+            'parent_number'       => $this->parent_number,
+            'student_image_url'   => $this->student_image,
             'gender'              => $this->gender,
             'date_of_birth'       => $this->date_of_birth,
             'address'             => $this->address,
             'year_of_study'       => $this->year_of_study,
+            'student_image_url'   => $this->files['image'] ?? null,
         ];
     }
 }

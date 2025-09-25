@@ -14,6 +14,7 @@ class Student extends Model
         'phone_number',
         'second_number',
         'parent_number',
+        'student_image_url',
         'date_of_birth',
         'address',
         'year_of_study',

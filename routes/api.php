@@ -37,3 +37,4 @@ Route::get('/teachers/{teacherId}/file/{fileType}', [TeacherController::class, '
 // roles : super_admin
 // vercion : 1
 Route::get('/v1/students', [StudentController::class, 'index']);
+Route::get('/students/{studentId}', [StudentController::class, 'file'])->name("students.file");
