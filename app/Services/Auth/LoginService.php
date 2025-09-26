@@ -19,7 +19,6 @@ class LoginService
         if ($user && Hash::check($dto->password, $user->password)) {
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            $role = $user->role->name;
 
             $cookie = Cookie::make(
                 'auth_token', // cookie name
@@ -35,7 +34,7 @@ class LoginService
             return [
                 'token'  => $token,
                 'cookie' => $cookie,
-                'role'   => $role,
+                'user'   => $user
             ];
         }
 

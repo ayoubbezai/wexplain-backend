@@ -4,18 +4,19 @@ namespace App\Http\Controllers;
 
 use Throwable;
 use App\DTOs\Auth\LoginDto;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Services\StudentService;
+use App\Services\TeacherService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
 use App\DTOs\Auth\SignUpStudentDTO;
 use App\DTOs\Auth\SignUpTeacherDTO;
 use App\Services\Auth\LoginService;
-use App\Services\StudentService;
-use App\Services\TeacherService;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\LoginResource;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\SignUpStudentRequest;
 use App\Http\Requests\Auth\SignUpTeacherRequest;
-use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -73,7 +74,7 @@ class AuthController extends Controller
                     'success' => true,
                     'message' => 'Logged in successfully',
                     'token'   => $loginResult['token'],
-                    'role'    => $loginResult['role'],
+                    'user'    => new LoginResource($loginResult['user']),
                 ], 200)->withCookie($loginResult['cookie']);
             } else {
                 return response()->json([
@@ -104,7 +105,7 @@ class AuthController extends Controller
         } catch (Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Logout failed',
+                'message' => 'Logout_failed',
                 'error'   => $e->getMessage()
             ], 500);
         }
@@ -127,10 +128,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'successfully',
-                "role"    => $role
-
-            ], 200);
-
+                "user"    =>  new LoginResource($user)]);
         } catch (Throwable $e) {
             return response()->json([
                 'success' => false,

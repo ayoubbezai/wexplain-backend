@@ -16,7 +16,7 @@ Route::post('/v1/signup-student', [AuthController::class, 'signupStudent']);
 Route::post('/v1/signup-teacher', [AuthController::class, 'signupTeacher']);
 Route::post('/v1/login', [AuthController::class, 'login']);
 Route::post('/v1/logout', [AuthController::class, 'logout']);
-Route::middleware('auth_cookie')->get('/v1/me', [AuthController::class, 'me']);
+Route::get('/v1/me', [AuthController::class, 'me'])->middleware("auth:sanctum");
 
 // get all teachers
 // auth : required
